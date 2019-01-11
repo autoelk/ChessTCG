@@ -3,7 +3,7 @@ Piece = {
   c,
   name,
   spr,
-  color,
+  team,
 }
 
 function Piece:Create(piece)
@@ -15,12 +15,13 @@ function Piece:Create(piece)
 end
 
 function Piece:Draw()
-  lg.setColor(self.color)
-  lg.rectangle("fill", self.c * tilesize + tilesize * 3, self.r * tilesize + tilesize * 3, tilesize, tilesize, 64)
+  if self.team == 1 then lg.setColor(colors.black) else lg.setColor(colors.white) end
+  lg.rectangle("fill", self.c * tilesize + tilesize * 3, self.r * tilesize + tilesize * 3, tilesize, tilesize, 10)
 end
 
 function Piece:Move(r, c)
   board[r][c] = self
   board[self.r][self.c] = nil
+  board[self.r][self.c] = {}
   self.r, self.c = r, c
 end
