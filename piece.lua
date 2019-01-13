@@ -23,6 +23,13 @@ function Piece:Draw()
 end
 
 function Piece:Move(r, c)
+  if board[self.r][self.c].team ~= board[r][c] then
+    for i, p in ipairs(pieces) do
+      if p == board[r][c] then
+        table.remove(pieces, i) -- capture the piece
+      end
+    end
+  end
   self.moved = true
   board[r][c] = self
   board[self.r][self.c] = nil
