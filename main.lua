@@ -1,5 +1,5 @@
 require "piece"
-local utf8 = require "utf8"
+require "chessmode"
 
 function love.load(arg)
   math.randomseed(os.time())
@@ -20,39 +20,24 @@ function love.load(arg)
   end
   colors = {
     white = {0.9, 0.9, 0.9},
-    gray = {0.5, 0.5, 0.5},
     black = {0.1, 0.1, 0.1},
-    lightbrown = {204 / 255, 153 / 255, 87 / 255},
-    darkbrown = {119 / 255, 59 / 255, 22 / 255},
+    lightbrown = {196 / 255, 145 / 255, 79 / 255},
+    darkbrown = {136 / 255, 75 / 255, 38 / 255},
   }
+  game = {
+    stage = "game",
+    turn = "white",
+  }
+
   --create pieces
   pieces = {}
-  table.insert(pieces, Piece:Create{r = 1, c = 1, team = "black", type = "rook"})
-  table.insert(pieces, Piece:Create{r = 1, c = 2, team = "black", type = "night"})
-  table.insert(pieces, Piece:Create{r = 1, c = 3, team = "black", type = "bishop"})
-  table.insert(pieces, Piece:Create{r = 1, c = 4, team = "black", type = "queen"})
-  table.insert(pieces, Piece:Create{r = 1, c = 5, team = "black", type = "king"})
-  table.insert(pieces, Piece:Create{r = 1, c = 6, team = "black", type = "bishop"})
-  table.insert(pieces, Piece:Create{r = 1, c = 7, team = "black", type = "night"})
-  table.insert(pieces, Piece:Create{r = 1, c = 8, team = "black", type = "rook"})
-
-  for i = 1, 8 do
-    table.insert(pieces, Piece:Create{r = 2, c = i, team = "black", type = "pawn"})
-  end
-
-  for i = 1, 8 do
-    table.insert(pieces, Piece:Create{r = 7, c = i, team = "white", type = "pawn"})
-  end
-
-  table.insert(pieces, Piece:Create{r = 8, c = 1, team = "white", type = "rook"})
-  table.insert(pieces, Piece:Create{r = 8, c = 2, team = "white", type = "night"})
-  table.insert(pieces, Piece:Create{r = 8, c = 3, team = "white", type = "bishop"})
-  table.insert(pieces, Piece:Create{r = 8, c = 4, team = "white", type = "queen"})
-  table.insert(pieces, Piece:Create{r = 8, c = 5, team = "white", type = "king"})
-  table.insert(pieces, Piece:Create{r = 8, c = 6, team = "white", type = "bishop"})
-  table.insert(pieces, Piece:Create{r = 8, c = 7, team = "white", type = "night"})
-  table.insert(pieces, Piece:Create{r = 8, c = 8, team = "white", type = "rook"})
-
+  -- for c = 1, 8 do
+  --   table.insert(pieces, Piece:Create{r = 1, c = c, team = "black", type = ".generic"})
+  --   table.insert(pieces, Piece:Create{r = 2, c = c, team = "black", type = ".generic"})
+  --   table.insert(pieces, Piece:Create{r = 7, c = c, team = "white", type = ".generic"})
+  --   table.insert(pieces, Piece:Create{r = 8, c = c, team = "white", type = ".generic"})
+  -- end
+  chessplace()
 end
 
 function love.update()
@@ -60,7 +45,11 @@ function love.update()
 end
 
 function love.draw()
-  lg.setColor(colors.gray)
+  if game.turn == "white" then
+    lg.setColor(colors.white)
+  else
+    lg.setColor(colors.black)
+  end
   lg.rectangle("fill", 0, 0, tilesize * 16, tilesize * 16)
   -- draw board
   for r = 1, 8 do
@@ -76,7 +65,11 @@ function love.draw()
     for r = 1, 8 do
       for c = 1, 8 do
         if board[selection.r][selection.c]:Check(r, c) then
-          lg.setColor(colors.gray)
+          if game.turn == "white" then
+            lg.setColor(colors.white)
+          else
+            lg.setColor(colors.black)
+          end
           lg.circle("fill", (c + 7 / 2) * tilesize, (r + 7 / 2) * tilesize, tilesize / 5)
         end
       end
