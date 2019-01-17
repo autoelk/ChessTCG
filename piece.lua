@@ -43,9 +43,9 @@ function Piece:Move(r, c)
 end
 
 function Piece:Check(r, c)
-  if game.turn ~= self.team then
-    return false
-  end
+  -- if game.turn ~= self.team then
+  --   return false
+  -- end
   if board[r][c].team == board[self.r][self.c].team then
     return false
   end
@@ -54,7 +54,7 @@ function Piece:Check(r, c)
       if self.r - r == 1 and self.c == c and board[r][c].team ~= "black" then
         return true
       end
-      if self.r - r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "black" then
+      if self.r - r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "black" then -- capturing
         return true
       end
       if not self.moved and self.c == c and self.r - r == 2 then
@@ -69,7 +69,7 @@ function Piece:Check(r, c)
       if r - self.r == 1 and self.c == c and board[r][c].team ~= "white" then
         return true
       end
-      if r - self.r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "white" then
+      if r - self.r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "white" then -- capturing
         return true
       end
       if not self.moved and self.c == c and r - self.r == 2 then
@@ -87,90 +87,69 @@ function Piece:Check(r, c)
     end
   elseif self.type == "bishop" then
     if math.abs(self.r - r) == math.abs(self.c - c) then
-      -- northeast
-      if c > self.c and r < self.r then
-        for i = 1, self.r - r - 1 do
+      for i = 1, math.max(self.r - r - 1, r - self.r - 1) do
+        -- northeast
+        if c > self.c and r < self.r then
           if board[self.r - i][self.c + i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- northwest
-      if c < self.c and r < self.r then
-        for i = 1, self.r - r - 1 do
+        -- northwest
+        if c < self.c and r < self.r then
           if board[self.r - i][self.c - i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- southeast
-      if c > self.c and r > self.r then
-        for i = 1, r - self.r - 1 do
+        -- southeast
+        if c > self.c and r > self.r then
           if board[self.r + i][self.c + i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- southwest
-      if c < self.c and r > self.r then
-        for i = 1, r - self.r - 1 do
+        -- southwest
+        if c < self.c and r > self.r then
           if board[self.r + i][self.c - i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
+      end
+      --check final tile
+      if board[r][c].team ~= self.team then
+        return true
       end
     end
   elseif self.type == "rook" then
-    -- north
-    if self.c == c and self.r - r > 0 then
-      for i = 1, self.r - r - 1 do
-        if board[self.r - i][c].team then
-          return false
+    if self.c == c or self.r == r then
+      -- north
+      if self.c == c and self.r - r > 0 then
+        for i = 1, self.r - r - 1 do
+          if board[self.r - i][c].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- south
-    if self.c == c and r - self.r > 0 then
-      for i = 1, r - self.r - 1 do
-        if board[self.r + i][c].team then
-          return false
+      -- south
+      if self.c == c and r - self.r > 0 then
+        for i = 1, r - self.r - 1 do
+          if board[self.r + i][c].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- east
-    if self.r == r and c - self.c > 0 then
-      for i = 1, c - self.c - 1 do
-        if board[r][self.c + i].team then
-          return false
+      -- east
+      if self.r == r and c - self.c > 0 then
+        for i = 1, c - self.c - 1 do
+          if board[r][self.c + i].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- west
-    if self.r == r and self.c - c > 0 then
-      for i = 1, self.c - c - 1 do
-        if board[r][self.c - i].team then
-          return false
+      -- west
+      if self.r == r and self.c - c > 0 then
+        for i = 1, self.c - c - 1 do
+          if board[r][self.c - i].team then
+            return false
+          end
         end
       end
       if board[r][c].team ~= self.team then
@@ -179,49 +158,35 @@ function Piece:Check(r, c)
     end
   elseif self.type == "queen" then
     if math.abs(self.r - r) == math.abs(self.c - c) then
-      -- northeast
-      if c > self.c and r < self.r then
-        for i = 1, self.r - r - 1 do
+      for i = 1, math.max(self.r - r - 1, r - self.r - 1) do
+        -- northeast
+        if c > self.c and r < self.r then
           if board[self.r - i][self.c + i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- northwest
-      if c < self.c and r < self.r then
-        for i = 1, self.r - r - 1 do
+        -- northwest
+        if c < self.c and r < self.r then
           if board[self.r - i][self.c - i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- southeast
-      if c > self.c and r > self.r then
-        for i = 1, r - self.r - 1 do
+        -- southeast
+        if c > self.c and r > self.r then
           if board[self.r + i][self.c + i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
-      end
-      -- southwest
-      if c < self.c and r > self.r then
-        for i = 1, r - self.r - 1 do
+        -- southwest
+        if c < self.c and r > self.r then
           if board[self.r + i][self.c - i].team then
             return false
           end
         end
-        if board[r][c].team ~= self.team then
-          return true
-        end
+      end
+      --check final tile
+      if board[r][c].team ~= self.team then
+        return true
       end
     end
     -- north
