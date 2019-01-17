@@ -26,7 +26,7 @@ function Card:Move(dest)
   if self.team == "white" then
     if dest == "deck" then
       table.insert(white.deck, self)
-      -- shuffle deck
+      shuffle(white.deck)
     elseif dest == "hand" then
       table.insert(white.hand, self)
     end
@@ -46,7 +46,7 @@ function Card:Move(dest)
   elseif self.team == "black" then
     if dest == "deck" then
       table.insert(black.deck, self)
-      -- shuffle deck
+      shuffle(black.deck)
     elseif dest == "hand" then
       table.insert(black.hand, self)
     end

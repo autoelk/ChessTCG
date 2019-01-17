@@ -73,6 +73,9 @@ function love.load(arg)
   table.insert(black.deck, Card:Create{team = "black", type = "knight", spr = "m"})
   table.insert(black.deck, Card:Create{team = "black", type = "rook", spr = "t"})
 
+  --shuffle decks
+  shuffle(white.deck)
+  shuffle(black.deck)
   --draw starting hand
   for i = 1, 4 do
     white.deck[1]:Move("hand")
@@ -121,7 +124,7 @@ function love.draw()
     for r = 1, 8 do
       for c = 1, 8 do
         if board[selection.r][selection.c]:Check(r, c) then
-          lg.setColor(StringToColor(game.turn))
+          lg.setColor(colors.gray)
           lg.circle("fill", (c + 3.5) * tilesize, (r + 3.5) * tilesize, tilesize * 0.2)
         end
       end
@@ -154,7 +157,7 @@ function love.mousereleased(x, y, button, isTouch)
       print(string.char(selection.c + 96) .. selection.r .. " " .. string.char(column + 96) .. row)
       board[selection.r][selection.c]:Move(row, column)
     end
-    if cardselection and board[row][column].team == cardselection.team then
+    if cardselection and game.turn == cardselection.team and board[row][column].team == cardselection.team then
       if cardselection.team == "white" then
         white.hand[cardselection.val]:Play(row, column)
       else
@@ -174,4 +177,12 @@ function StringToColor(string)
   else
     return colors.gray
   end
+end
+
+function shuffle(table)
+  for i = #table, 2, - 1 do
+    local j = math.random(i)
+    table[i], table[j] = table[j], table[i]
+  end
+  return table
 end

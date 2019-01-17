@@ -25,15 +25,11 @@ function Piece:Draw()
 end
 
 function Piece:Move(r, c)
-  if self.team == "white" then
-    DrawCard("black")
-  elseif self.team == "black" then
-    DrawCard("white")
-  end
-
-  for i, p in ipairs(pieces) do
-    if p == board[r][c] then
-      table.remove(pieces, i) -- capture the piece
+  if self.team ~= board[r][c].team then
+    for i, p in ipairs(pieces) do
+      if p == board[r][c] then
+        table.remove(pieces, i) -- capture the piece
+      end
     end
   end
   self.moved = true
@@ -43,8 +39,10 @@ function Piece:Move(r, c)
   self.r, self.c = r, c
   if game.turn == "white" then
     game.turn = "black"
+    DrawCard("black")
   else
     game.turn = "white"
+    DrawCard("white")
   end
 end
 
