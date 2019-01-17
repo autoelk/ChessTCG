@@ -3,6 +3,7 @@ Piece = {
   c,
   type,
   team,
+  spr,
 }
 
 function Piece:Create(piece)
@@ -14,20 +15,25 @@ function Piece:Create(piece)
 end
 
 function Piece:Draw()
-  if self.team == "white" then lg.setColor(colors.white) else lg.setColor(colors.black) end
+  lg.setColor(StringToColor(self.team))
+  lg.setFont(chessfont)
   if selection and self.r == selection.r and self.c == selection.c then
-    lg.print(self.type:sub(1, 1), lm.getX() - tilesize / 2, lm.getY() - tilesize / 2)
+    lg.print(self.spr, lm.getX() - tilesize * 0.5, lm.getY() - tilesize * 0.5)
   else
-    lg.print(self.type:sub(1, 1), (self.c + 3) * tilesize, (self.r + 3) * tilesize)
+    lg.print(self.spr, (self.c + 3) * tilesize, (self.r + 3) * tilesize)
   end
 end
 
 function Piece:Move(r, c)
-  if board[self.r][self.c].team ~= board[r][c] then
-    for i, p in ipairs(pieces) do
-      if p == board[r][c] then
-        table.remove(pieces, i) -- capture the piece
-      end
+  if self.team == "white" then
+    DrawCard("black")
+  elseif self.team == "black" then
+    DrawCard("white")
+  end
+
+  for i, p in ipairs(pieces) do
+    if p == board[r][c] then
+      table.remove(pieces, i) -- capture the piece
     end
   end
   self.moved = true
@@ -43,9 +49,9 @@ function Piece:Move(r, c)
 end
 
 function Piece:Check(r, c)
-  -- if game.turn ~= self.team then
-  --   return false
-  -- end
+  if game.turn ~= self.team then
+    return false
+  end
   if board[r][c].team == board[self.r][self.c].team then
     return false
   end
@@ -81,7 +87,7 @@ function Piece:Check(r, c)
         return true
       end
     end
-  elseif self.type == "night" then
+  elseif self.type == "knight" then
     if (math.abs(self.r - r) == 1 and math.abs(self.c - c) == 2) or (math.abs(self.r - r) == 2 and math.abs(self.c - c) == 1) then
       return true
     end
@@ -114,9 +120,7 @@ function Piece:Check(r, c)
         end
       end
       --check final tile
-      if board[r][c].team ~= self.team then
-        return true
-      end
+      return true
     end
   elseif self.type == "rook" then
     if self.c == c or self.r == r then
@@ -152,9 +156,7 @@ function Piece:Check(r, c)
           end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
+      return true
     end
   elseif self.type == "queen" then
     if math.abs(self.r - r) == math.abs(self.c - c) then
@@ -184,54 +186,42 @@ function Piece:Check(r, c)
           end
         end
       end
-      --check final tile
-      if board[r][c].team ~= self.team then
-        return true
-      end
+      return true -- final tile
     end
-    -- north
-    if self.c == c and self.r - r > 0 then
-      for i = 1, self.r - r - 1 do
-        if board[self.r - i][c].team then
-          return false
+    if self.c == c or self.r == r then
+      -- north
+      if self.c == c and self.r - r > 0 then
+        for i = 1, self.r - r - 1 do
+          if board[self.r - i][c].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- south
-    if self.c == c and r - self.r > 0 then
-      for i = 1, r - self.r - 1 do
-        if board[self.r + i][c].team then
-          return false
+      -- south
+      if self.c == c and r - self.r > 0 then
+        for i = 1, r - self.r - 1 do
+          if board[self.r + i][c].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- east
-    if self.r == r and c - self.c > 0 then
-      for i = 1, c - self.c - 1 do
-        if board[r][self.c + i].team then
-          return false
+      -- east
+      if self.r == r and c - self.c > 0 then
+        for i = 1, c - self.c - 1 do
+          if board[r][self.c + i].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
-    end
-    -- west
-    if self.r == r and self.c - c > 0 then
-      for i = 1, self.c - c - 1 do
-        if board[r][self.c - i].team then
-          return false
+      -- west
+      if self.r == r and self.c - c > 0 then
+        for i = 1, self.c - c - 1 do
+          if board[r][self.c - i].team then
+            return false
+          end
         end
       end
-      if board[r][c].team ~= self.team then
-        return true
-      end
+      return true
     end
   elseif self.type == "king" then
     if math.abs(self.r - r) <= 1 and math.abs(self.c - c) <= 1 then
