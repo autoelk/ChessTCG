@@ -73,7 +73,7 @@ function Card:Play(r, c)
       table.remove(pieces, i)
     end
   end
-  table.insert(pieces, Piece:Create{r = r, c = c, team = self.team, type = self.type, spr = self.spr, cost = math.ceil(self.cost / 2)})
+  table.insert(pieces, Piece:Create{r = r, c = c, team = self.team, type = self.type, spr = self.spr})
   self:Move("deck")
 end
 

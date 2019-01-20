@@ -249,6 +249,9 @@ function love.mousereleased(x, y, button, isTouch)
       end
       white.mana = white.maxmana
     end
+    for i, p in ipairs(pieces) do
+      p.cost = 1
+    end
   end
   selection = nil
   cardselection = nil
