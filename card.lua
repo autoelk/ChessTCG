@@ -3,6 +3,7 @@ Card = {
   team,
   spr,
   loc = "deck",
+  cost,
 }
 
 function Card:Create(card)
@@ -13,20 +14,20 @@ function Card:Create(card)
 end
 
 function Card:Draw(x, y)
-  lg.setColor(colors.gray)
+  if self.team == "white" then lg.setColor(colors.black) else lg.setColor(colors.white) end
   lg.rectangle("fill", x, y, tilesize * 2, tilesize * 3, 10)
-  lg.setColor(StringToColor(self.team))
   lg.setFont(chessfont)
+  if self.team == "white" then lg.setColor(colors.white) else lg.setColor(colors.black) end
   lg.print(self.spr, x + tilesize * 0.5, y + tilesize * 0.75)
   lg.setFont(font)
   lg.printf(self.type, x, y + tilesize * 1.75, tilesize * 2, "center")
+  lg.printf(self.cost, x, y, tilesize * 1.8, "right")
 end
 
 function Card:Move(dest)
   if self.team == "white" then
     if dest == "deck" then
       table.insert(white.deck, self)
-      shuffle(white.deck)
     elseif dest == "hand" then
       table.insert(white.hand, self)
     end
@@ -46,7 +47,6 @@ function Card:Move(dest)
   elseif self.team == "black" then
     if dest == "deck" then
       table.insert(black.deck, self)
-      shuffle(black.deck)
     elseif dest == "hand" then
       table.insert(black.hand, self)
     end
@@ -73,7 +73,7 @@ function Card:Play(r, c)
       table.remove(pieces, i)
     end
   end
-  table.insert(pieces, Piece:Create{r = r, c = c, team = self.team, type = self.type, spr = self.spr})
+  table.insert(pieces, Piece:Create{r = r, c = c, team = self.team, type = self.type, spr = self.spr, cost = math.ceil(self.cost / 2)})
   self:Move("deck")
 end
 

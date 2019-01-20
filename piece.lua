@@ -4,6 +4,7 @@ Piece = {
   type,
   team,
   spr,
+  cost = 1,
 }
 
 function Piece:Create(piece)
@@ -33,17 +34,11 @@ function Piece:Move(r, c)
     end
   end
   self.moved = true
+  self.cost = self.cost + 1
   board[r][c] = self
   board[self.r][self.c] = nil
   board[self.r][self.c] = {}
   self.r, self.c = r, c
-  if game.turn == "white" then
-    game.turn = "black"
-    DrawCard("black")
-  else
-    game.turn = "white"
-    DrawCard("white")
-  end
 end
 
 function Piece:Check(r, c)

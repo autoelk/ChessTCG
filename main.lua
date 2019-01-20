@@ -23,15 +23,31 @@ function love.load(arg)
   colors = {
     white = {0.9, 0.9, 0.9},
     gray = {0.5, 0.5, 0.5},
+    graytransparent = {0.5, 0.5, 0.5, 0.75},
     black = {0.1, 0.1, 0.1},
     lightbrown = {196 / 255, 145 / 255, 79 / 255},
     darkbrown = {136 / 255, 75 / 255, 38 / 255},
+    accent = {74 / 255, 134 / 255, 236 / 255},
+    accent2 = {219 / 255, 177 / 255, 58 / 255},
   }
   game = {
     stage = "game",
     turn = "white",
   }
 
+  -- create players
+  white = {
+    deck = {},
+    hand = {},
+    mana = 1,
+    maxmana = 1,
+  }
+  black = {
+    deck = {},
+    hand = {},
+    mana = 1,
+    maxmana = 1,
+  }
   -- create pieces
   -- chessplace()
   pieces = {}
@@ -42,40 +58,33 @@ function love.load(arg)
     table.insert(pieces, Piece:Create{r = 8, c = c, team = "white", type = "generic", spr = "."})
   end
   -- create cards
-  white = {
-    deck = {},
-    hand = {},
-  }
-  black = {
-    deck = {},
-    hand = {},
-  }
   for i = 1, 8 do
-    table.insert(white.deck, Card:Create{team = "white", type = "pawn", spr = "o"})
+    table.insert(white.deck, Card:Create{team = "white", type = "pawn", spr = "o", cost = 1})
   end
-  table.insert(white.deck, Card:Create{team = "white", type = "rook", spr = "t"})
-  table.insert(white.deck, Card:Create{team = "white", type = "knight", spr = "m"})
-  table.insert(white.deck, Card:Create{team = "white", type = "bishop", spr = "v"})
-  table.insert(white.deck, Card:Create{team = "white", type = "queen", spr = "w"})
-  table.insert(white.deck, Card:Create{team = "white", type = "king", spr = "l"})
-  table.insert(white.deck, Card:Create{team = "white", type = "bishop", spr = "v"})
-  table.insert(white.deck, Card:Create{team = "white", type = "knight", spr = "m"})
-  table.insert(white.deck, Card:Create{team = "white", type = "rook", spr = "t"})
+  table.insert(white.deck, Card:Create{team = "white", type = "rook", spr = "t", cost = 5})
+  table.insert(white.deck, Card:Create{team = "white", type = "knight", spr = "m", cost = 2})
+  table.insert(white.deck, Card:Create{team = "white", type = "bishop", spr = "v", cost = 3})
+  table.insert(white.deck, Card:Create{team = "white", type = "queen", spr = "w", cost = 8})
+  table.insert(white.deck, Card:Create{team = "white", type = "king", spr = "l", cost = 2})
+  table.insert(white.deck, Card:Create{team = "white", type = "bishop", spr = "v", cost = 3})
+  table.insert(white.deck, Card:Create{team = "white", type = "knight", spr = "m", cost = 2})
+  table.insert(white.deck, Card:Create{team = "white", type = "rook", spr = "t", cost = 5})
   for i = 1, 8 do
-    table.insert(black.deck, Card:Create{team = "black", type = "pawn", spr = "o"})
+    table.insert(black.deck, Card:Create{team = "black", type = "pawn", spr = "o", cost = 1})
   end
-  table.insert(black.deck, Card:Create{team = "black", type = "rook", spr = "t"})
-  table.insert(black.deck, Card:Create{team = "black", type = "knight", spr = "m"})
-  table.insert(black.deck, Card:Create{team = "black", type = "bishop", spr = "v"})
-  table.insert(black.deck, Card:Create{team = "black", type = "queen", spr = "w"})
-  table.insert(black.deck, Card:Create{team = "black", type = "king", spr = "l"})
-  table.insert(black.deck, Card:Create{team = "black", type = "bishop", spr = "v"})
-  table.insert(black.deck, Card:Create{team = "black", type = "knight", spr = "m"})
-  table.insert(black.deck, Card:Create{team = "black", type = "rook", spr = "t"})
+  table.insert(black.deck, Card:Create{team = "black", type = "rook", spr = "t", cost = 5})
+  table.insert(black.deck, Card:Create{team = "black", type = "knight", spr = "m", cost = 2})
+  table.insert(black.deck, Card:Create{team = "black", type = "bishop", spr = "v", cost = 3})
+  table.insert(black.deck, Card:Create{team = "black", type = "queen", spr = "w", cost = 8})
+  table.insert(black.deck, Card:Create{team = "black", type = "king", spr = "l", cost = 2})
+  table.insert(black.deck, Card:Create{team = "black", type = "bishop", spr = "v", cost = 3})
+  table.insert(black.deck, Card:Create{team = "black", type = "knight", spr = "m", cost = 2})
+  table.insert(black.deck, Card:Create{team = "black", type = "rook", spr = "t", cost = 5})
 
   --shuffle decks
   shuffle(white.deck)
   shuffle(black.deck)
+
   --draw starting hand
   for i = 1, 4 do
     white.deck[1]:Move("hand")
@@ -97,6 +106,45 @@ function love.draw()
       lg.rectangle("fill", c * tilesize + tilesize * 3, r * tilesize + tilesize * 3, tilesize, tilesize)
     end
   end
+  -- draw mana
+  lg.setColor(colors.accent)
+  lg.rectangle("fill", tilesize * 12, tilesize * (12 - white.mana), tilesize * 0.5, tilesize * white.mana)
+  lg.rectangle("fill", tilesize * 3.5, tilesize * 4, tilesize * 0.5, tilesize * black.mana)
+  if selection then
+    if board[selection.r][selection.c].team == "white" then
+      lg.setColor(colors.accent2)
+      lg.rectangle("fill", tilesize * 12, tilesize * (12 - board[selection.r][selection.c].cost), tilesize * 0.5, tilesize * board[selection.r][selection.c].cost)
+      if board[selection.r][selection.c].cost > white.mana then
+        lg.setColor(colors.accent)
+        lg.rectangle("fill", tilesize * 12, tilesize * (12 - white.mana), tilesize * 0.5, tilesize * white.mana)
+      end
+    else
+      lg.setColor(colors.accent2)
+      lg.rectangle("fill", tilesize * 3.5, tilesize * 4, tilesize * 0.5, tilesize * board[selection.r][selection.c].cost)
+      if board[selection.r][selection.c].cost > black.mana then
+        lg.setColor(colors.accent)
+        lg.rectangle("fill", tilesize * 3.5, tilesize * 4, tilesize * 0.5, tilesize * black.mana)
+      end
+    end
+  end
+  if cardselection then
+    if cardselection.team == "white" then
+      lg.setColor(colors.accent2)
+      lg.rectangle("fill", tilesize * 12, tilesize * (12 - white.hand[cardselection.val].cost), tilesize * 0.5, tilesize * white.hand[cardselection.val].cost)
+      if white.hand[cardselection.val].cost > white.mana then
+        lg.setColor(colors.accent)
+        lg.rectangle("fill", tilesize * 12, tilesize * (12 - white.mana), tilesize * 0.5, tilesize * white.mana)
+      end
+    else
+      lg.setColor(colors.accent2)
+      lg.rectangle("fill", tilesize * 3.5, tilesize * 4, tilesize * 0.5, tilesize * black.hand[cardselection.val].cost)
+      if black.hand[cardselection.val].cost > black.mana then
+        lg.setColor(colors.accent)
+        lg.rectangle("fill", tilesize * 3.5, tilesize * 4, tilesize * 0.5, tilesize * black.mana)
+      end
+    end
+  end
+
   for i, p in ipairs(pieces) do
     p:Draw()
   end
@@ -106,6 +154,18 @@ function love.draw()
   if #black.deck > 0 then
     black.deck[1]:Draw(tilesize * 13, tilesize * 0.5)
   end
+
+  -- draw end turn buttons
+  lg.setColor(colors.black)
+  lg.rectangle("fill", tilesize * 13, tilesize * 12.5, tilesize * 2, tilesize * 3, 10)
+  lg.setColor(colors.white)
+  lg.rectangle("fill", tilesize * 1, tilesize * 0.5, tilesize * 2, tilesize * 3, 10)
+  lg.setFont(font)
+  lg.setColor(colors.white)
+  lg.printf("End\nTurn", tilesize * 13, tilesize * 13.25, tilesize * 2, "center")
+  lg.setColor(colors.black)
+  lg.printf("End\nTurn", tilesize * 1, tilesize * 1.25, tilesize * 2, "center")
+
   for i, c in ipairs(white.hand) do
     if cardselection and i == cardselection.val and cardselection.team == "white" then
       c:Draw(lm.getX() - tilesize * 1, lm.getY() - tilesize * 1.5)
@@ -155,14 +215,39 @@ function love.mousereleased(x, y, button, isTouch)
   if 0 < row and row <= 8 and 0 < column and column <= 8 then
     if selection and board[selection.r][selection.c]:Check(row, column) then
       print(string.char(selection.c + 96) .. selection.r .. " " .. string.char(column + 96) .. row)
-      board[selection.r][selection.c]:Move(row, column)
+      if board[selection.r][selection.c].team == "white" and white.mana >= board[selection.r][selection.c].cost then
+        white.mana = white.mana - board[selection.r][selection.c].cost
+        board[selection.r][selection.c]:Move(row, column)
+      elseif board[selection.r][selection.c].team == "black" and black.mana >= board[selection.r][selection.c].cost then
+        black.mana = black.mana - board[selection.r][selection.c].cost
+        board[selection.r][selection.c]:Move(row, column)
+      end
     end
     if cardselection and game.turn == cardselection.team and board[row][column].team == cardselection.team then
-      if cardselection.team == "white" then
+      if cardselection.team == "white" and white.mana >= white.hand[cardselection.val].cost then
+        white.mana = white.mana - white.hand[cardselection.val].cost
         white.hand[cardselection.val]:Play(row, column)
-      else
+      elseif cardselection.team == "black" and black.mana >= black.hand[cardselection.val].cost then
+        black.mana = black.mana - black.hand[cardselection.val].cost
         black.hand[cardselection.val]:Play(row, column)
       end
+    end
+  end
+  if (tilesize * 13 < x and x < tilesize * 15 and tilesize * 12.5 < y and y < tilesize * 15.5) or (tilesize * 1 < x and x < tilesize * 3 and tilesize * 0.5 < y and y < tilesize * 3.5) then
+    if game.turn == "white" then
+      game.turn = "black"
+      DrawCard("black")
+      if black.maxmana < 8 then
+        black.maxmana = black.maxmana + 1
+      end
+      black.mana = black.maxmana
+    else
+      game.turn = "white"
+      DrawCard("white")
+      if white.maxmana < 8 then
+        white.maxmana = white.maxmana + 1
+      end
+      white.mana = white.maxmana
     end
   end
   selection = nil
