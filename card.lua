@@ -13,8 +13,12 @@ function Card:Create(card)
   return card
 end
 
-function Card:Draw(x, y)
-  if self.team == "white" then lg.setColor(colors.black) else lg.setColor(colors.white) end
+function Card:Draw(x, y, selected)
+  if selected then
+    if self.team == "white" then lg.setColor(colors.blacktransparent) else lg.setColor(colors.whitetransparent) end
+  else
+    if self.team == "white" then lg.setColor(colors.black) else lg.setColor(colors.white) end
+  end
   lg.rectangle("fill", x, y, tilesize * 2, tilesize * 3, 10)
   lg.setFont(chessfont)
   if self.team == "white" then lg.setColor(colors.white) else lg.setColor(colors.black) end

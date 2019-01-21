@@ -23,8 +23,9 @@ function love.load(arg)
   colors = {
     white = {0.9, 0.9, 0.9},
     gray = {0.5, 0.5, 0.5},
-    graytransparent = {0.5, 0.5, 0.5, 0.75},
     black = {0.1, 0.1, 0.1},
+    whitetransparent = {0.9, 0.9, 0.9, 0.5},
+    blacktransparent = {0.1, 0.1, 0.1, 0.5},
     lightbrown = {196 / 255, 145 / 255, 79 / 255},
     darkbrown = {136 / 255, 75 / 255, 38 / 255},
     accent = {74 / 255, 134 / 255, 236 / 255},
@@ -127,6 +128,7 @@ function love.draw()
       end
     end
   end
+  -- draw mana cost overlay
   if cardselection then
     if cardselection.team == "white" then
       lg.setColor(colors.accent2)
@@ -168,19 +170,20 @@ function love.draw()
 
   for i, c in ipairs(white.hand) do
     if cardselection and i == cardselection.val and cardselection.team == "white" then
-      c:Draw(lm.getX() - tilesize * 1, lm.getY() - tilesize * 1.5)
+      c:Draw(lm.getX() - tilesize * 1, lm.getY() - tilesize * 1.5, true)
     else
       c:Draw(tilesize * 2 * (i + 1), tilesize * 12.5)
     end
   end
   for i, c in ipairs(black.hand) do
     if cardselection and i == cardselection.val and cardselection.team == "black" then
-      c:Draw(lm.getX() - tilesize * 1, lm.getY() - tilesize * 1.5)
+      c:Draw(lm.getX() - tilesize * 1, lm.getY() - tilesize * 1.5, true)
     else
       c:Draw(tilesize * 2 * (i + 1), tilesize * 0.5)
     end
   end
   if selection then
+    -- draw valid moves
     for r = 1, 8 do
       for c = 1, 8 do
         if board[selection.r][selection.c]:Check(r, c) then
@@ -201,9 +204,9 @@ function love.mousepressed(x, y, button, istouch, presses)
       if board[row][column].team and (selection == nil or board[row][column].team == board[selection.r][selection.c].team) then
         selection = {r = row, c = column}
       end
-    elseif 8 < row then
+    elseif 8 < row and #white.hand >= math.ceil(column * 0.5) then
       cardselection = {val = math.ceil(column * 0.5), team = "white"}
-    elseif row <= 0 then
+    elseif row <= 0 and #black.hand >= math.ceil(column * 0.5) then
       cardselection = {val = math.ceil(column * 0.5), team = "black"}
     end
   end
@@ -233,6 +236,7 @@ function love.mousereleased(x, y, button, isTouch)
       end
     end
   end
+  -- end turn
   if (tilesize * 13 < x and x < tilesize * 15 and tilesize * 12.5 < y and y < tilesize * 15.5) or (tilesize * 1 < x and x < tilesize * 3 and tilesize * 0.5 < y and y < tilesize * 3.5) then
     if game.turn == "white" then
       game.turn = "black"
@@ -250,7 +254,7 @@ function love.mousereleased(x, y, button, isTouch)
       white.mana = white.maxmana
     end
     for i, p in ipairs(pieces) do
-      p.cost = 1
+      p.moved = false
     end
   end
   selection = nil

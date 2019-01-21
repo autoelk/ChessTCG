@@ -4,7 +4,9 @@ Piece = {
   type,
   team,
   spr,
-  cost = 1,
+  cost = 2,
+  firstmove = true,
+  moved = false,
 }
 
 function Piece:Create(piece)
@@ -33,8 +35,7 @@ function Piece:Move(r, c)
       end
     end
   end
-  self.moved = true
-  self.cost = self.cost + 1
+  self.firstmove = false
   board[r][c] = self
   board[self.r][self.c] = nil
   board[self.r][self.c] = {}
@@ -43,6 +44,9 @@ end
 
 function Piece:Check(r, c)
   if game.turn ~= self.team then
+    return false
+  end
+  if self.moved then
     return false
   end
   if board[r][c].team == board[self.r][self.c].team then
@@ -56,7 +60,7 @@ function Piece:Check(r, c)
       if self.r - r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "black" then -- capturing
         return true
       end
-      if not self.moved and self.c == c and self.r - r == 2 then
+      if self.firstmove and self.c == c and self.r - r == 2 then
         for i = 1, self.r - r do
           if board[self.r - i][c].team then
             return false
@@ -71,7 +75,7 @@ function Piece:Check(r, c)
       if r - self.r == 1 and math.abs(self.c - c) == 1 and board[r][c].team == "white" then -- capturing
         return true
       end
-      if not self.moved and self.c == c and r - self.r == 2 then
+      if self.firstmove and self.c == c and r - self.r == 2 then
         for i = 1, r - self.r do
           if board[self.r + i][c].team then
             return false
