@@ -237,22 +237,24 @@ function love.mousereleased(x, y, button, isTouch)
     end
   end
   -- end turn
-  if (tilesize * 13 < x and x < tilesize * 15 and tilesize * 12.5 < y and y < tilesize * 15.5) or (tilesize * 1 < x and x < tilesize * 3 and tilesize * 0.5 < y and y < tilesize * 3.5) then
-    if game.turn == "white" then
-      game.turn = "black"
-      DrawCard("black")
-      if black.maxmana < 8 then
-        black.maxmana = black.maxmana + 1
-      end
-      black.mana = black.maxmana
-    else
-      game.turn = "white"
-      DrawCard("white")
-      if white.maxmana < 8 then
-        white.maxmana = white.maxmana + 1
-      end
-      white.mana = white.maxmana
+  if tilesize * 13 < x and x < tilesize * 15 and tilesize * 12.5 < y and y < tilesize * 15.5 and game.turn == "white" then
+    game.turn = "black"
+    DrawCard("black")
+    if black.maxmana < 8 then
+      black.maxmana = black.maxmana + 1
     end
+    black.mana = black.maxmana
+    for i, p in ipairs(pieces) do
+      p.moved = false
+    end
+  end
+  if tilesize * 1 < x and x < tilesize * 3 and tilesize * 0.5 < y and y < tilesize * 3.5 and game.turn == "black" then
+    game.turn = "white"
+    DrawCard("white")
+    if white.maxmana < 8 then
+      white.maxmana = white.maxmana + 1
+    end
+    white.mana = white.maxmana
     for i, p in ipairs(pieces) do
       p.moved = false
     end
